@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "minecraftVersion": "1.21.11",
+  "entries": [
+    { "id": "coppertemper:oak", "role": "oak", "name": "Oak", "shortName": "Oak" },
+    { "id": "coppertemper:dark_oak", "role": "dark_oak", "name": "Dark Oak", "shortName": "Dark Oak" },
+    { "id": "coppertemper:birch", "role": "birch", "name": "Birch", "shortName": "Birch" },
+    { "id": "coppertemper:spruce", "role": "spruce", "name": "Spruce", "shortName": "Spruce" },
+    { "id": "coppertemper:acacia", "role": "acacia", "name": "Acacia", "shortName": "Acacia" },
+    { "id": "coppertemper:jungle", "role": "jungle", "name": "Jungle", "shortName": "Jungle" },
+    { "id": "coppertemper:cherry", "role": "cherry", "name": "Cherry", "shortName": "Cherry" },
+    { "id": "coppertemper:mangrove", "role": "mangrove", "name": "Mangrove", "shortName": "Mangrove" }
+  ]
+}

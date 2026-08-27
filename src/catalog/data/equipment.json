@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "minecraftVersion": "1.21.11",
+  "entries": [
+    { "id": "coppertemper:helmet", "name": "Helmet", "family": "armor", "fields": ["armorPoints", "armorToughness", "maxDurability", "knockbackResistance", "enchantability"], "base": {} },
+    { "id": "coppertemper:chestplate", "name": "Chestplate", "family": "armor", "fields": ["armorPoints", "armorToughness", "maxDurability", "knockbackResistance", "enchantability"], "base": { "slot": "chestplate" } },
+    { "id": "coppertemper:leggings", "name": "Leggings", "family": "armor", "fields": ["armorPoints", "armorToughness", "maxDurability", "knockbackResistance", "enchantability"], "base": {} },
+    { "id": "coppertemper:boots", "name": "Boots", "family": "armor", "fields": ["armorPoints", "armorToughness", "maxDurability", "knockbackResistance", "enchantability"], "base": {} },
+    { "id": "coppertemper:sword", "name": "Sword", "family": "tool", "fields": ["attackDamage", "attackSpeed", "miningSpeed", "harvestLevel", "maxDurability", "enchantability"], "base": { "attackDamage": 4, "attackSpeed": 1.6 } },
+    { "id": "coppertemper:axe", "name": "Axe", "family": "tool", "fields": ["attackDamage", "attackSpeed", "miningSpeed", "harvestLevel", "maxDurability", "enchantability"], "base": { "attackDamage": 7, "attackSpeed": 0.9 } },
+    { "id": "coppertemper:pickaxe", "name": "Pickaxe", "family": "tool", "fields": ["attackDamage", "attackSpeed", "miningSpeed", "harvestLevel", "maxDurability", "enchantability"], "base": { "attackDamage": 2, "attackSpeed": 1.2 } },
+    { "id": "coppertemper:shovel", "name": "Shovel", "family": "tool", "fields": ["attackDamage", "attackSpeed", "miningSpeed", "harvestLevel", "maxDurability", "enchantability"], "base": { "attackDamage": 2.5, "attackSpeed": 1 } },
+    { "id": "coppertemper:hoe", "name": "Hoe", "family": "tool", "fields": ["attackDamage", "attackSpeed", "miningSpeed", "harvestLevel", "maxDurability", "enchantability"], "base": { "attackDamage": -3, "attackSpeed": 4 } }
+  ]
+}
