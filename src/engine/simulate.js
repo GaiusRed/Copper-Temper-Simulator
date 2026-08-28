@@ -6,7 +6,8 @@ import { applyEffects, evaluateCondition } from './rules'
 export const PHASES = [
   'reset', 'prepareCards', 'restoreBase', 'selectWorld', 'ingredientEnergy',
   'materialBefore', 'ingredientRules', 'pushCard', 'activateCards',
-  'cardCombinations', 'resolveDeities', 'materialAfter', 'finalize',
+  'cardCombinations', 'resolveDeities', 'afterDeityRules', 'pushAfterDeityCard',
+  'materialAfter', 'finalize',
 ]
 
 const deityRoles = ['oak', 'dark_oak', 'birch', 'spruce', 'acacia', 'jungle', 'cherry', 'mangrove']
@@ -21,6 +22,7 @@ export function createInitialState({ catalogMaps, recipe }) {
     attributes: Object.freeze({ ...baseItem.attributes }),
     energy: 0,
     deityLevels: Object.freeze(Object.fromEntries(deityRoles.map((role) => [role, 0]))),
+    deityResistances: Object.freeze({ ...catalogMaps.materials.get(recipe.materialId).deityResistances }),
     deityQueue: Object.freeze([]),
     deityQueueAttempts: Object.freeze([]),
     cards: Object.freeze({ hidden: null, first: null, second: null, third: null, leaving: null }),
@@ -39,6 +41,7 @@ function freezeState(state) {
     ...state,
     attributes: Object.freeze({ ...state.attributes }),
     deityLevels: Object.freeze({ ...state.deityLevels }),
+    deityResistances: Object.freeze({ ...state.deityResistances }),
     deityQueue: Object.freeze([...state.deityQueue]),
     deityQueueAttempts: Object.freeze((state.deityQueueAttempts ?? []).map((attempt) => Object.freeze({ ...attempt }))),
     cards: Object.freeze({ ...state.cards }),
@@ -97,9 +100,15 @@ export function simulateIngredient({ catalogMaps, state, ingredientId }) {
   context = applyCardLifecycle({ state: context.state, catalogMaps, phaseContext: { phase: 'cardCombinations', events: context.events } })
   nextState = context.state
   phase(phases, 'cardCombinations', nextState, context.events)
-  const deityResult = resolveDeityQueue({ state: nextState, queue: nextState.deityQueueAttempts, mode: nextState.worldMode, resistances: material.deityResistances })
+  const deityResult = resolveDeityQueue({ state: nextState, queue: nextState.deityQueueAttempts, mode: nextState.worldMode, resistances: nextState.deityResistances })
   nextState = freezeState({ ...deityResult.state, deityQueue: [], deityQueueAttempts: [] })
   phase(phases, 'resolveDeities', nextState, deityResult.events.map((event) => createEvent({ ...event, phase: 'resolveDeities' })))
+  context = runRules(ingredient.afterDeityRules ?? [], { state: nextState, catalogMaps, sourceId: ingredientId, phase: 'afterDeityRules', pendingCardId: null })
+  nextState = context.state
+  pendingCardId = context.pendingCardId
+  phase(phases, 'afterDeityRules', nextState, context.events)
+  ;({ state: nextState } = pushPendingCard({ state: nextState, pendingCardId, catalogMaps }))
+  phase(phases, 'pushAfterDeityCard', nextState)
   context = runRules(material.hooks?.afterIngredient ?? [], { state: nextState, catalogMaps, sourceId: material.id, phase: 'materialAfter', pendingCardId: null })
   nextState = context.state
   phase(phases, 'materialAfter', nextState, context.events)

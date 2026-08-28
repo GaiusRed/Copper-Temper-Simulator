@@ -1,7 +1,7 @@
 import { attemptDeity, DEITY_QUEUE_ORDER } from './deities'
 
 export const CONDITION_TYPES = ['compare', 'equipmentFamily', 'equipmentId', 'materialId', 'cardAtPosition', 'worldMode', 'hasTrait', 'hasCard']
-export const EFFECT_TYPES = ['addAttribute', 'subtractAttribute', 'setAttribute', 'multiplyAttribute', 'grantTrait', 'removeTrait', 'addEnergy', 'spendEnergy', 'setEnergy', 'attemptDeity', 'queueDeity', 'increaseDeity', 'decreaseDeity', 'setPendingCard', 'moveCard', 'removeCard', 'retainCard', 'transformCard', 'setSticky', 'clearSticky', 'setWorldMode']
+export const EFFECT_TYPES = ['addAttribute', 'subtractAttribute', 'setAttribute', 'multiplyAttribute', 'grantTrait', 'removeTrait', 'addEnergy', 'spendEnergy', 'setEnergy', 'attemptDeity', 'queueDeity', 'increaseDeity', 'decreaseDeity', 'reduceDeityResistance', 'setPendingCard', 'moveCard', 'removeCard', 'retainCard', 'transformCard', 'setSticky', 'clearSticky', 'setWorldMode']
 
 function valueFor(target, state) {
   if (target === 'energy') return state.energy
@@ -39,6 +39,7 @@ export function applyEffects(effects, context) {
     attributes: { ...context.state.attributes },
     traits: [...(context.state.traits ?? [])],
     deityLevels: { ...(context.state.deityLevels ?? {}) },
+    deityResistances: { ...(context.state.deityResistances ?? {}) },
     deityQueue: [...(context.state.deityQueue ?? [])],
     deityQueueAttempts: [...(context.state.deityQueueAttempts ?? [])],
     cards: { ...(context.state.cards ?? {}) },
@@ -101,6 +102,9 @@ export function applyEffects(effects, context) {
         ? Math.min(15, state.deityLevels[effect.role] + adjustment)
         : Math.max(0, state.deityLevels[effect.role] - adjustment)
     }
+    if (effect.type === 'reduceDeityResistance') {
+      state.deityResistances[effect.role] = Math.max(1, Math.trunc(state.deityResistances[effect.role] / 4) * 3)
+    }
     if (effect.type === 'queueDeity') {
       if (!DEITY_QUEUE_ORDER.includes(effect.role)) throw new Error(`Cannot queue immediate deity role: ${effect.role}`)
       state.deityQueue.push(effect.role)
@@ -118,6 +122,7 @@ export function applyEffects(effects, context) {
         continue
       }
       const resistance = effect.resistance
+        ?? state.deityResistances?.[effect.role]
         ?? context.catalogMaps?.materials?.get(state.materialId)?.deityResistances?.[effect.role]
         ?? 8
       const result = attemptDeity({ state, role: effect.role, mode: state.worldMode, resistance })
@@ -155,12 +160,17 @@ export function applyEffects(effects, context) {
     if (['retainCard', 'setSticky', 'clearSticky'].includes(effect.type)) after = state.stickyCardIds.includes(target)
     if (effect.type === 'transformCard') after = effect.transformTo
     if (effect.type === 'setWorldMode') after = state.worldMode
+    if (effect.type === 'reduceDeityResistance') {
+      target = effect.role
+      before = context.state.deityResistances?.[effect.role]
+      after = state.deityResistances[effect.role]
+    }
     events.push(Object.freeze({ phase: context.phase, sourceId: context.sourceId, operation: effect.type, target, before, after, ...(effect.type === 'attemptDeity' && before !== undefined ? { energyCost: Math.max(0, context.state.energy - state.energy) } : {}) }))
   }
   return {
     ...context,
     pendingCardId,
-    state: Object.freeze({ ...state, attributes: Object.freeze(state.attributes), traits: Object.freeze(state.traits), deityLevels: Object.freeze(state.deityLevels), deityQueue: Object.freeze(state.deityQueue), deityQueueAttempts: Object.freeze(state.deityQueueAttempts.map((attempt) => Object.freeze({ ...attempt }))), cards: Object.freeze(state.cards), stickyCardIds: Object.freeze(state.stickyCardIds) }),
+    state: Object.freeze({ ...state, attributes: Object.freeze(state.attributes), traits: Object.freeze(state.traits), deityLevels: Object.freeze(state.deityLevels), deityResistances: Object.freeze(state.deityResistances), deityQueue: Object.freeze(state.deityQueue), deityQueueAttempts: Object.freeze(state.deityQueueAttempts.map((attempt) => Object.freeze({ ...attempt }))), cards: Object.freeze(state.cards), stickyCardIds: Object.freeze(state.stickyCardIds) }),
     events: Object.freeze(events),
   }
 }

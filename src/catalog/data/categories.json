@@ -1,5 +1,8 @@
 {
   "schemaVersion": 1,
   "minecraftVersion": "1.21.11",
-  "entries": []
+  "entries": [
+    { "id": "coppertemper:coins", "name": "Coins", "order": 0 },
+    { "id": "coppertemper:catalysts", "name": "Catalysts", "order": 1 }
+  ]
 }

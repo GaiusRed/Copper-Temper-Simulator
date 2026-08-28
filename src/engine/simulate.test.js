@@ -20,9 +20,11 @@ it('creates immutable initial state', () => {
   expect(Object.isFrozen(state)).toBe(true)
 })
 
-it('defines the thirteen phases in order', () => {
-  expect(PHASES).toHaveLength(13)
+it('defines the fifteen phases in order', () => {
+  expect(PHASES).toHaveLength(15)
   expect(PHASES[0]).toBe('reset')
+  expect(PHASES).toContain('afterDeityRules')
+  expect(PHASES).toContain('pushAfterDeityCard')
   expect(PHASES.at(-1)).toBe('finalize')
 })
 
@@ -130,6 +132,22 @@ it('uses explicit resistance for a queued deity attempt', () => {
   const phases = simulateRecipe(fixture).steps[0].phases
 
   expect(phases.find(({ id }) => id === 'resolveDeities').state.energy).toBe(21)
+})
+
+it('adds a card after deity resolution when sufficient energy remains', () => {
+  const fixture = fixtures()
+  fixture.catalogMaps.ingredients.get('minecraft:coal').energy = 16
+  fixture.catalogMaps.ingredients.get('minecraft:coal').rules = [{ type: 'attemptDeity', role: 'oak' }]
+  fixture.catalogMaps.ingredients.get('minecraft:coal').afterDeityRules = [{
+    condition: { type: 'compare', target: 'energy', operator: 'gte', value: 8 },
+    effects: [{ type: 'setPendingCard', cardId: 'coppertemper:test_card' }],
+  }]
+  fixture.recipe.ingredientIds = ['minecraft:coal']
+
+  const phases = simulateRecipe(fixture).steps[0].phases
+
+  expect(phases.find(({ id }) => id === 'resolveDeities').state.energy).toBe(8)
+  expect(phases.find(({ id }) => id === 'pushAfterDeityCard').state.cards.hidden).toBe('coppertemper:test_card')
 })
 
 it('records the source and phase for a resolved queued deity attempt', () => {

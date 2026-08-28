@@ -1,5 +1,464 @@
 {
   "schemaVersion": 1,
   "minecraftVersion": "1.21.11",
-  "entries": []
+  "entries": [
+    {
+      "id": "coppertemper:oak_barya",
+      "name": "Oak Barya",
+      "minecraftItemId": "coppertemper:oak_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 48,
+      "rules": [{ "type": "attemptDeity", "role": "oak" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            { "type": "setPendingCard", "cardId": "coppertemper:oak_wood_card" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:gilded_oak_barya",
+      "name": "Gilded Oak Barya",
+      "minecraftItemId": "coppertemper:gilded_oak_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 64,
+      "rules": [{ "type": "attemptDeity", "role": "oak" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            { "type": "setPendingCard", "cardId": "coppertemper:oak_wood_card" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:dark_oak_barya",
+      "name": "Dark Oak Barya",
+      "minecraftItemId": "coppertemper:dark_oak_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 48,
+      "rules": [{ "type": "attemptDeity", "role": "dark_oak" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            {
+              "type": "setPendingCard",
+              "cardId": "coppertemper:dark_oak_wood_card"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:gilded_dark_oak_barya",
+      "name": "Gilded Dark Oak Barya",
+      "minecraftItemId": "coppertemper:gilded_dark_oak_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 64,
+      "rules": [{ "type": "attemptDeity", "role": "dark_oak" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            {
+              "type": "setPendingCard",
+              "cardId": "coppertemper:dark_oak_wood_card"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:birch_barya",
+      "name": "Birch Barya",
+      "minecraftItemId": "coppertemper:birch_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 48,
+      "rules": [{ "type": "attemptDeity", "role": "birch" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            {
+              "type": "setPendingCard",
+              "cardId": "coppertemper:birch_wood_card"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:gilded_birch_barya",
+      "name": "Gilded Birch Barya",
+      "minecraftItemId": "coppertemper:gilded_birch_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 64,
+      "rules": [{ "type": "attemptDeity", "role": "birch" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            {
+              "type": "setPendingCard",
+              "cardId": "coppertemper:birch_wood_card"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:spruce_barya",
+      "name": "Spruce Barya",
+      "minecraftItemId": "coppertemper:spruce_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 48,
+      "rules": [{ "type": "attemptDeity", "role": "spruce" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            {
+              "type": "setPendingCard",
+              "cardId": "coppertemper:spruce_wood_card"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:gilded_spruce_barya",
+      "name": "Gilded Spruce Barya",
+      "minecraftItemId": "coppertemper:gilded_spruce_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 64,
+      "rules": [{ "type": "attemptDeity", "role": "spruce" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            {
+              "type": "setPendingCard",
+              "cardId": "coppertemper:spruce_wood_card"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:acacia_barya",
+      "name": "Acacia Barya",
+      "minecraftItemId": "coppertemper:acacia_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 48,
+      "rules": [{ "type": "attemptDeity", "role": "acacia" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            {
+              "type": "setPendingCard",
+              "cardId": "coppertemper:acacia_wood_card"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:gilded_acacia_barya",
+      "name": "Gilded Acacia Barya",
+      "minecraftItemId": "coppertemper:gilded_acacia_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 64,
+      "rules": [{ "type": "attemptDeity", "role": "acacia" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            {
+              "type": "setPendingCard",
+              "cardId": "coppertemper:acacia_wood_card"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:jungle_barya",
+      "name": "Jungle Barya",
+      "minecraftItemId": "coppertemper:jungle_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 48,
+      "rules": [{ "type": "attemptDeity", "role": "jungle" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            {
+              "type": "setPendingCard",
+              "cardId": "coppertemper:jungle_wood_card"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:gilded_jungle_barya",
+      "name": "Gilded Jungle Barya",
+      "minecraftItemId": "coppertemper:gilded_jungle_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 64,
+      "rules": [{ "type": "attemptDeity", "role": "jungle" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            {
+              "type": "setPendingCard",
+              "cardId": "coppertemper:jungle_wood_card"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:cherry_barya",
+      "name": "Cherry Barya",
+      "minecraftItemId": "coppertemper:cherry_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 48,
+      "rules": [{ "type": "attemptDeity", "role": "cherry" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            {
+              "type": "setPendingCard",
+              "cardId": "coppertemper:cherry_wood_card"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:gilded_cherry_barya",
+      "name": "Gilded Cherry Barya",
+      "minecraftItemId": "coppertemper:gilded_cherry_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 64,
+      "rules": [{ "type": "attemptDeity", "role": "cherry" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            {
+              "type": "setPendingCard",
+              "cardId": "coppertemper:cherry_wood_card"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:mangrove_barya",
+      "name": "Mangrove Barya",
+      "minecraftItemId": "coppertemper:mangrove_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 48,
+      "rules": [{ "type": "attemptDeity", "role": "mangrove" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            {
+              "type": "setPendingCard",
+              "cardId": "coppertemper:mangrove_wood_card"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:gilded_mangrove_barya",
+      "name": "Gilded Mangrove Barya",
+      "minecraftItemId": "coppertemper:gilded_mangrove_barya",
+      "categoryId": "coppertemper:coins",
+      "energy": 64,
+      "rules": [{ "type": "attemptDeity", "role": "mangrove" }],
+      "afterDeityRules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            {
+              "type": "setPendingCard",
+              "cardId": "coppertemper:mangrove_wood_card"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:bronze_catalyst",
+      "name": "Bronze Catalyst",
+      "minecraftItemId": "coppertemper:bronze_catalyst",
+      "categoryId": "coppertemper:catalysts",
+      "energy": 24,
+      "rules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 4
+          },
+          "effects": [
+            { "type": "setPendingCard", "cardId": "coppertemper:witch" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:brass_catalyst",
+      "name": "Brass Catalyst",
+      "minecraftItemId": "coppertemper:brass_catalyst",
+      "categoryId": "coppertemper:catalysts",
+      "energy": 24,
+      "rules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 4
+          },
+          "effects": [
+            { "type": "setPendingCard", "cardId": "coppertemper:sorcerer" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:gilded_catalyst",
+      "name": "Gilded Catalyst",
+      "minecraftItemId": "coppertemper:gilded_catalyst",
+      "categoryId": "coppertemper:catalysts",
+      "energy": 96,
+      "rules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 8
+          },
+          "effects": [
+            { "type": "setPendingCard", "cardId": "coppertemper:dawn_nymph" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coppertemper:ender_catalyst",
+      "name": "Ender Catalyst",
+      "minecraftItemId": "coppertemper:ender_catalyst",
+      "categoryId": "coppertemper:catalysts",
+      "energy": 24,
+      "rules": [
+        {
+          "condition": {
+            "type": "compare",
+            "target": "energy",
+            "operator": "gte",
+            "value": 16
+          },
+          "effects": [
+            { "type": "setPendingCard", "cardId": "coppertemper:ancient_moon" }
+          ]
+        }
+      ]
+    }
+  ]
 }
