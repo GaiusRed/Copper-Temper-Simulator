@@ -35,3 +35,14 @@ it('shows only the attributes that apply to the selected equipment', () => {
   expect(view.container).toHaveTextContent('Mining Speed')
   expect(view.container).not.toHaveTextContent('Armor Toughness')
 })
+
+it('uses deity short names from the catalog', () => {
+  const { catalogMaps, recipe } = createCompiledFixtures()
+  catalogMaps.deities.get('coppertemper:oak').shortName = 'OAK'
+
+  const view = render(<StatisticsPanel state={createInitialState({ catalogMaps, recipe })} catalogMaps={catalogMaps} />)
+  const labels = [...view.container.querySelectorAll('.deity-heading span')].map((element) => element.textContent)
+
+  expect(labels).toContain('OAK')
+  expect(labels).not.toContain('OA')
+})

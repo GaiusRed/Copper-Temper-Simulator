@@ -20,7 +20,7 @@ export function createCatalogFixtures() {
       id: `coppertemper:${role}`,
       role,
       name: role.replaceAll('_', ' '),
-      shortName: role,
+      shortName: ['OA', 'DO', 'BI', 'SP', 'AC', 'JU', 'CH', 'MA'][roles.indexOf(role)],
     }))),
     materials: catalog([{
       id: 'minecraft:iron',

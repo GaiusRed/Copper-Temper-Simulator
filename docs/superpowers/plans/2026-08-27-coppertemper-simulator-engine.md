@@ -10,27 +10,27 @@
 
 ## Implementation Status
 
-Status date: 2026-08-27. The checked test suite has 106 passing tests in 14
+Status date: 2026-08-28. The checked test suite has 178 passing tests in 14
 files. This section records the current code and the remaining audit work.
 
 | Task | Status | Implemented | Still planned |
 |---|---|---|---|
-| 1. Catalog schemas and validation | Partial | Ajv schemas, normalized errors, ID checks, cross-catalog references, bounded rule types, and direct transformation cycle checks. | Permit `totalDeityLevels` comparisons. Validate effect values by operation type. |
+| 1. Catalog schemas and validation | Complete | Ajv schemas, normalized errors, ID checks, cross-catalog references, bounded rule types, direct transformation cycle checks, and fixed deity role uniqueness. | No planned code work. |
 | 2. Bundled catalogs and build gate | Complete | Seven bundled catalogs, catalog lookup maps, import-time validation, and the `validate:catalogs` build gate. | Keep catalog content synchronized with Tasks 3, 7, and 8. |
 | 3. Exact vanilla base items | Complete | Exact vanilla tool and armor values, composition, compatibility checks, and full-table tests. | No planned code work. |
 | 4. Recipe JSON codec | Complete | Versioned import and export, validation of IDs and compatibility, and immutable recipe output. | No planned code work. |
-| 5. Engine state and events | Partial | Immutable state, all 13 phase snapshots, normalized events, and energy expiration events. | Repair the duplicate and cumulative-cost deity event path. |
-| 6. Fixed deity rules and bonuses | Partial | Normal, independent, and mirrored modes, costs, refunds, queue order, caps, and derived bonuses. | Add complete table-driven behavior tests. |
-| 7. Declarative conditions and effects | Partial | All listed condition and effect operations, field checks, truncation, references, and strict object boundaries. | Repair the catalog validation gaps in A11 and A12. |
+| 5. Engine state and events | Complete | Immutable state, all 13 phase snapshots, normalized events, energy expiration, and deferred deity resolution. | No planned code work. |
+| 6. Fixed deity rules and bonuses | Complete | Normal, independent, and mirrored modes, costs, refunds, ordered queue resolution, caps, and derived bonuses. | No planned code work. |
+| 7. Declarative conditions and effects | Complete | All listed condition and effect operations, field checks, truncation, references, strict object boundaries, and trait applicability checks. | No planned code work. |
 | 8. Card queue and capabilities | Complete | Queue movement, sticky cards, activation order, self-removal, transformations, retention, world selection, and combinations. | No planned code work. |
-| 9. Complete phase pipeline | Partial | `simulateIngredient`, `simulateRecipe`, all phase actions, snapshots, persistence, reset behavior, and energy expiration. | Add persistence, determinism, and immutable-input tests. |
-| 10. Ingredient and recipe panels | Partial | Material and equipment selectors, collapsible categories, recipe insertion, selection, native dragging, removal, and application integration. | Add complete material-filter, category-order, drag, and double-click tests. |
-| 11. Statistics, explanations, and dialog | Partial | Statistics, step and phase controls, formatted attribute events, and accessible import/export dialogs. | Complete fixed event and reason text. Add import and explanation tests. |
+| 9. Complete phase pipeline | Complete | `simulateIngredient`, `simulateRecipe`, all phase actions, snapshots, persistence, reset behavior, energy expiration, and immutable-input coverage. | No planned code work. |
+| 10. Ingredient and recipe panels | Complete | Material and equipment selectors, collapsible categories, recipe insertion, selection, native dragging, removal, integration, and interaction coverage. | No planned code work. |
+| 11. Statistics, explanations, and dialog | Complete | Statistics, step and phase controls, readable event text, accessible import/export dialogs, and component coverage. | No planned code work. |
 | 12. Application integration and final validation | Complete | Simulator application, responsive layout, README commands, full validation, and desktop and narrow browser checks. | No planned code work. |
 
 ### Current Verification
 
-- `npm test`: 106 tests passed in 14 files.
+- `npm test`: 178 tests passed in 14 files.
 - `npm run build`: catalog validation passed and Vite created `dist`.
 - Desktop and 375px browser checks found the required three-column and
   one-column layouts, with no horizontal overflow.
@@ -77,9 +77,8 @@ files. This section records the current code and the remaining audit work.
 
 ### Task 1: Catalog Schemas And Validation
 
-**Task state: Partial.** Steps 1 through 4 and 6 are complete. Step 5 has
-the base validator, but its planned card, rule, trait, and cycle validation
-is incomplete.
+**Task state: Complete.** The catalog schemas, cross-reference checks, rule
+validation, role uniqueness, and focused tests are complete.
 
 **Files:**
 - Modify: `package.json`
@@ -395,8 +394,8 @@ Expected: both commands PASS.
 
 ### Task 3: Exact Vanilla Base Items
 
-**Task state: Partial.** The representative tests and base-item composer are
-complete. The full material and armor tables remain unchecked.
+**Task state: Complete.** The composer and full vanilla material and armor
+tables are implemented and covered by tests.
 
 **Files:**
 - Create: `src/engine/baseItem.js`
@@ -602,8 +601,8 @@ Expected: PASS.
 
 ### Task 5: Engine State And Structured Events
 
-**Task state: Partial.** Initial state and phase IDs are complete. Structured
-events and phase execution remain unchecked.
+**Task state: Complete.** Initial state, phase IDs, snapshots, and structured
+events are implemented and verified.
 
 **Files:**
 - Create: `src/engine/simulate.js`
@@ -663,8 +662,8 @@ Expected: PASS.
 
 ### Task 6: Fixed Deity Rules And Bonuses
 
-**Task state: Partial.** The first normal-mode rules and bonus calculation
-are complete. The remaining modes, queued rules, and events remain unchecked.
+**Task state: Complete.** All world modes, costs, refunds, queue rules, caps,
+and derived bonuses are implemented and covered.
 
 **Files:**
 - Create: `src/engine/deities.js`
@@ -780,8 +779,8 @@ Expected: PASS for all three world modes.
 
 ### Task 7: Declarative Conditions And Effects
 
-**Task state: Partial.** The initial condition and effect tests are complete.
-The bounded registry, strict schemas, and final validation remain unchecked.
+**Task state: Complete.** The bounded condition and effect registry, strict
+schemas, cross-reference checks, and effect validation are complete.
 
 **Files:**
 - Create: `src/engine/rules.js`
@@ -900,9 +899,8 @@ Expected: PASS.
 
 ### Task 8: Card Queue And Capability Parity
 
-**Task state: Partial.** Queue movement, sticky-card preservation, ordered
-activation, and world-card selection are complete. The remaining lifecycle
-capabilities remain unchecked.
+**Task state: Complete.** Queue movement, sticky-card preservation, ordered
+activation, world-card selection, and lifecycle capabilities are complete.
 
 **Files:**
 - Create: `src/engine/cards.js`
@@ -1424,3 +1422,234 @@ simulator-engine design. Desktop and 375px checks found no horizontal overflow.
 
   Verification: `npm test` passed with 123 tests in 14 files. `npm run build`
   passed with catalog validation.
+
+## Branch Audit: 2026-08-28
+
+This audit compares commit `ba1f3de` with the simulator-engine design.
+The full test suite and production build pass. The following defects remain.
+
+- [x] **A15: Reject duplicate fixed deity roles**
+
+  The validator only rejects unknown roles. It accepts two entries with the
+  same valid role, such as two `oak` deities. Require every fixed role exactly
+  once. Add a regression test for a duplicate role.
+
+- [x] **A16: Queue non-Oak deity attempts until phase 11**
+
+  The design requires Oak and Dark Oak attempts to resolve immediately.
+  Birch, Spruce, Acacia, Jungle, Cherry, and Mangrove must remain queued until
+  `resolveDeities`. `applyEffects` now resolves every `attemptDeity` effect
+  immediately. Route the six queued roles to `deityQueue`, and add phase tests
+  for one immediate and one queued attempt.
+
+- [x] **A17: Enforce trait targets when rules grant traits**
+
+  `grantTrait` now rejects unknown trait IDs and traits that do not apply to
+  the selected target. Tool, armor, equipment-specific, and unknown-ID
+  regressions cover the calculation error path.
+
+  Verification: `npm test -- src/catalog/validate.test.js src/engine/simulate.test.js src/engine/rules.test.js`
+  passed with 36 tests in 3 files.
+
+## Branch Audit: 2026-08-28, Follow-up
+
+Tasks 9, 10, and 11 have no pending checkboxes. Their implementations and
+focused tests cover the planned phase pipeline, panel interactions, output,
+and dialog behavior. The following design mismatches remain.
+
+- [x] **A18: Read deity display labels from the catalog**
+
+  `StatisticsPanel` renders each deity's `shortName` in catalog order. The
+  bundled catalog stores the compact display labels. A component regression
+  test verifies that a custom short name replaces the bundled value.
+
+- [x] **A19: Enforce Birch and Spruce queue gates**
+
+  In normal and mirrored modes, Birch and Spruce queue only when the opposing
+  deity is zero or Oak and Dark Oak are equal. Rejected attempts emit a
+  structured `blocked` event. Regression tests cover bright, balanced,
+  shaded, opposition-free, and independent states.
+
+  Verification: `npm test; npm run build` passed with 132 tests in 14 files.
+
+## Branch Audit: 2026-08-28, Validation And Deity Follow-up
+
+The plan has no stale unchecked tasks. This audit found four additional
+deviations from the simulator-engine design.
+
+- [x] **A20: Preserve explicit resistance for queued deity attempts**
+
+  Queue metadata preserves an explicit `resistance` value through phase 11.
+  The public deity queue remains a role list. An integration regression test
+  verifies the queued Birch cost.
+
+- [x] **A21: Keep declarative deity levels integral and within range**
+
+  The schema and engine reject non-positive or non-integer deity adjustment
+  values. Valid adjustments remain within the inclusive range from 0 through
+  15.
+
+- [x] **A22: Validate each compatible material and equipment mapping**
+
+  Every equipment ID in a material's `compatibility` list must have an
+  `itemIds` entry and complete family-specific base values. Validation now
+  checks tool fields, tool fallback values, and armor slot values before a
+  simulation can create undefined item attributes or an undefined item ID.
+
+- [x] **A23: Provide complete structured catalog validation errors**
+
+  Each validation error now includes stable `file` and `expectedRule` fields,
+  as well as catalog, entry, field, invalid value, and message. The build
+  validator writes each complete record as JSON.
+
+  Verification: `npm test; npm run build` passed with 143 tests in 14 files.
+
+## Branch Audit: 2026-08-28, World Card Follow-up
+
+The plan has no stale unchecked tasks. This audit found one catalog validation
+gap.
+
+- [x] **A24: Require a mode for each world card**
+
+  A card with `isWorldCard: true` must define one valid `worldMode` value.
+  Catalog validation rejects world cards without a mode before phase 4 can
+  set an undefined mode. A regression test covers this catalog state.
+
+  Verification: `npm test; npm run build` passed with 144 tests in 14 files.
+
+## Branch Audit: 2026-08-28, Rule Validation Follow-up
+
+The plan has no stale unchecked tasks. This audit found two strict validation
+gaps.
+
+- [x] **A25: Validate condition values by condition type**
+
+  Comparison conditions require numbers. Equipment-family and world-mode
+  conditions require one catalog-supported value. Regressions reject invalid
+  values for all three condition types.
+
+- [x] **A26: Validate combination attributes against their equipment**
+
+  Combination attributes are checked against the owning equipment's `fields`
+  list, rather than the global field union. A regression rejects an armor-only
+  attribute from a sword rule.
+
+  Verification: `npm test -- src/catalog/validate.test.js` passed with 24
+  tests. `npm test; npm run build` passed with 148 tests in 14 files.
+
+## Branch Audit: 2026-08-28, Deity Queue Follow-up
+
+The plan has no stale unchecked tasks. This audit found two deity queue gaps.
+
+- [x] **A27: Reject unsupported queued deity roles**
+
+  `queueDeity` accepts only the six roles that phase 11 resolves. Catalog
+  validation rejects Oak and Dark Oak queue effects. The engine also rejects
+  these roles when a caller bypasses catalog validation.
+
+- [x] **A28: Preserve queued deity event context**
+
+  Queued attempts retain the source ID. Phase 11 labels each resolved deity
+  event with the `resolveDeities` phase and its originating source.
+
+  Verification: `npm test -- src/catalog/validate.test.js src/engine/simulate.test.js`
+  passed with 39 tests in 2 files. `npm test; npm run build` passed with 151
+  tests in 14 files.
+
+## Branch Audit: 2026-08-28, Phase And Target Follow-up
+
+The plan has no stale unchecked tasks. This audit found four validation and
+immutability gaps.
+
+- [x] **A29: Reject deferred deity effects after phase 11**
+
+  Catalog validation rejects `queueDeity` and deferred `attemptDeity` effects
+  in `afterIngredient` hooks. Immediate Oak and Dark Oak attempts remain valid.
+
+- [x] **A30: Reject direct card transformation cycles of any length**
+
+  Graph traversal rejects self-cycles and direct transformation cycles of any
+  length. Two-card and three-card regressions cover the cycle paths.
+
+- [x] **A31: Validate rule attributes against reachable equipment**
+
+  Attribute effects are checked against reachable material and equipment
+  pairs. Equipment-family, equipment-ID, material-ID, and logical conditions
+  narrow the possible targets before validation.
+
+- [x] **A32: Deep-freeze queued deity attempt metadata**
+
+  Every queued-attempt record is copied and frozen when rule state and phase
+  snapshots are created. A regression checks the nested object.
+
+  Verification: `npm test -- src/catalog/validate.test.js src/engine/simulate.test.js`
+  passed with 44 tests in 2 files. `npm test; npm run build` passed with 156
+  tests in 14 files.
+
+## Branch Audit: 2026-08-28, Deity And Contract Reconciliation
+
+The plan has no stale unchecked tasks. These findings refine separate parts
+of earlier completed tasks and do not reverse them.
+
+- [x] **A33: Use role-specific Birch and Spruce dominance**
+
+  Resolution now selects support by role and mode. Normal Spruce uses Dark
+  Oak, mirrored Spruce uses Oak, and Birch uses the opposite pair. This does
+  not change the A19 queue-admission gates.
+
+- [x] **A34: Remove all opposition from independent mode**
+
+  Independent Birch and Spruce attempts no longer decrease each other. The
+  six deferred roles still enter and resolve through the fixed queue order.
+
+- [x] **A35: Emit correct values for card and world effects**
+
+  Pending-card, movement, removal, retention, transformation, and world-mode
+  events now record operation-specific targets, prior values, and results.
+  Explanation text uses these structured values.
+
+- [x] **A36: Validate trait grants against reachable equipment**
+
+  Catalog validation rejects a trait grant when any reachable target is
+  outside its valid families or explicit equipment IDs.
+
+- [x] **A37: Restrict equipment fields by family**
+
+  Armor and tool schemas permit only the approved family fields. Field lists
+  must contain at least one unique field.
+
+  Verification: `npm test -- src/engine/deities.test.js` passed with 13 tests.
+  `npm test -- src/engine/rules.test.js` passed with 28 tests.
+  `npm test -- src/catalog/validate.test.js` passed with 34 tests.
+  `npm test; npm run build` passed with 170 tests in 14 files.
+
+## Branch Audit: 2026-08-28, Schema And Workflow Matrix
+
+The plan has no stale unchecked tasks. These findings cover requirements that
+A1 through A37 did not change.
+
+- [x] **A38: Validate category reference ownership**
+
+  Ingredient category IDs must resolve to the categories catalog. Validation
+  rejects missing IDs and IDs owned by another catalog.
+
+- [x] **A39: Use discriminated condition and effect schemas**
+
+  Conditions and effects use disjoint strict schema objects. Validation
+  rejects mixed condition forms and fields that do not apply to an effect.
+
+- [x] **A40: Complete structured energy events**
+
+  Declarative energy effects target `energy` and record prior and result
+  values. Phase 5 records the complete energy replacement event.
+
+- [x] **A41: Enforce material-first equipment selection**
+
+  The equipment selector stays disabled and empty until material selection.
+  It then lists only equipment that the selected material supports.
+
+  Verification: `npm test -- src/catalog/validate.test.js` passed with 37
+  tests. `npm test -- src/engine/rules.test.js src/engine/simulate.test.js`
+  passed with 46 tests. `npm test -- src/components/IngredientsPanel.test.jsx`
+  passed with 3 tests. `npm test; npm run build` passed with 178 tests in 14
+  files.

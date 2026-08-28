@@ -45,9 +45,12 @@ export function attemptDeity({ state, role, mode = 'normal', resistance, resista
     }
     energy = decrease(levels, decreasedRole, energy, resistance, resistances)
   }
-  const dominance = mode === 'mirrored' ? ['dark_oak', 'oak'] : ['oak', 'dark_oak']
   const opposingRole = role === 'birch' ? 'spruce' : role === 'spruce' ? 'birch' : null
-  if (opposingRole && levels[dominance[0]] > levels[dominance[1]] && levels[opposingRole] > 0) {
+  const supportRole = role === 'birch'
+    ? (mode === 'mirrored' ? 'dark_oak' : 'oak')
+    : (mode === 'mirrored' ? 'oak' : 'dark_oak')
+  const competingRole = supportRole === 'oak' ? 'dark_oak' : 'oak'
+  if (mode !== 'independent' && opposingRole && levels[supportRole] > levels[competingRole] && levels[opposingRole] > 0) {
     if (energy < 4) return { state, events: [event(role, before, before, 0, 'blocked')] }
     energy = decrease(levels, opposingRole, energy, resistance, resistances)
   }
@@ -66,10 +69,13 @@ export function resolveDeityQueue({ state, queue, mode = 'normal', resistances }
   let nextState = state
   const events = []
   for (const role of DEITY_QUEUE_ORDER) {
-    for (const queuedRole of queue.filter((entry) => entry === role)) {
-      const result = attemptDeity({ state: nextState, role: queuedRole, mode, resistance: resistanceFor(queuedRole, 8, resistances), resistances })
+    for (const queuedAttempt of queue.filter((entry) => (typeof entry === 'string' ? entry : entry.role) === role)) {
+      const queuedRole = typeof queuedAttempt === 'string' ? queuedAttempt : queuedAttempt.role
+      const resistance = typeof queuedAttempt === 'string' ? undefined : queuedAttempt.resistance
+      const sourceId = typeof queuedAttempt === 'string' ? undefined : queuedAttempt.sourceId
+      const result = attemptDeity({ state: nextState, role: queuedRole, mode, resistance: resistance ?? resistanceFor(queuedRole, 8, resistances), resistances })
       nextState = result.state
-      events.push(...result.events)
+      events.push(...result.events.map((entry) => ({ ...entry, ...(sourceId ? { sourceId } : {}) })))
     }
   }
   return { state: snapshot(nextState, { ...nextState.deityLevels }, nextState.energy), events }

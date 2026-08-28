@@ -14,6 +14,6 @@ try {
   validateCatalogSet(catalogs)
   console.log('Catalog validation passed.')
 } catch (error) {
-  for (const catalogError of error.errors ?? [error]) console.error(catalogError.message)
+  for (const catalogError of error.errors ?? [error]) console.error(JSON.stringify(catalogError))
   process.exitCode = 1
 }

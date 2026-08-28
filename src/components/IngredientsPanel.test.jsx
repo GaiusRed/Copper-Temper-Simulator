@@ -10,6 +10,16 @@ it('renders each ingredient category as a collapsible section', () => {
   expect(screen.getByText('Fuel').closest('summary')).not.toBeNull()
 })
 
+it('disables equipment selection until a material is selected', () => {
+  const catalogs = createCatalogFixtures()
+  const view = render(<IngredientsPanel catalogs={catalogs} materialId="" equipmentId="" onMaterialChange={() => {}} onEquipmentChange={() => {}} onAddIngredient={() => {}} />)
+  const equipment = view.container.querySelector('#equipment')
+
+  expect(equipment).toBeDisabled()
+  expect(equipment).toHaveTextContent('Select equipment')
+  expect(equipment).not.toHaveTextContent('Sword')
+})
+
 it('filters equipment by material and orders categories from the catalog', () => {
   const catalogs = createCatalogFixtures()
   catalogs.equipment.entries.push({ id: 'coppertemper:helmet', name: 'Helmet', family: 'armor', fields: [], base: {} })

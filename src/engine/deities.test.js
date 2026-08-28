@@ -33,6 +33,42 @@ it('uses independent mode without Oak and Dark Oak opposition', () => {
   expect(result.state).toMatchObject({ energy: 0, deityLevels: { oak: 1, dark_oak: 1 } })
 })
 
+it('uses Dark Oak support when Spruce opposes Birch in normal mode', () => {
+  const result = attemptDeity({
+    state: state({ energy: 32, dark_oak: 1, birch: 1 }),
+    role: 'spruce',
+    mode: 'normal',
+    resistance: 8,
+    resistances: { birch: 8 },
+  })
+
+  expect(result.state.deityLevels).toMatchObject({ birch: 0, spruce: 1 })
+})
+
+it('uses Oak support when Spruce opposes Birch in mirrored mode', () => {
+  const result = attemptDeity({
+    state: state({ energy: 32, oak: 1, birch: 1 }),
+    role: 'spruce',
+    mode: 'mirrored',
+    resistance: 8,
+    resistances: { birch: 8 },
+  })
+
+  expect(result.state.deityLevels).toMatchObject({ birch: 0, spruce: 1 })
+})
+
+it('does not apply Birch and Spruce opposition in independent mode', () => {
+  const result = attemptDeity({
+    state: state({ energy: 32, oak: 1, birch: 1 }),
+    role: 'spruce',
+    mode: 'independent',
+    resistance: 8,
+    resistances: { birch: 8 },
+  })
+
+  expect(result.state.deityLevels).toMatchObject({ birch: 1, spruce: 1 })
+})
+
 it('mirrors Oak and Dark Oak opposition', () => {
   const result = attemptDeity({ state: state({ energy: 32, oak: 2, dark_oak: 2 }), role: 'dark_oak', mode: 'mirrored', resistance: 8 })
   expect(result.state.deityLevels).toMatchObject({ oak: 0, dark_oak: 3 })

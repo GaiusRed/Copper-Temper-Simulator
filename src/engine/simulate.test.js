@@ -36,6 +36,20 @@ it('runs every phase and expires remaining ingredient energy', () => {
   expect(result.steps[0].final.energy).toBe(0)
 })
 
+it('records complete values when ingredient energy replaces step energy', () => {
+  const fixture = fixtures()
+  fixture.recipe.ingredientIds = ['minecraft:coal']
+
+  const phase = simulateRecipe(fixture).steps[0].phases.find(({ id }) => id === 'ingredientEnergy')
+
+  expect(phase.events).toContainEqual(expect.objectContaining({
+    operation: 'setEnergy',
+    target: 'energy',
+    before: 0,
+    after: 24,
+  }))
+})
+
 it('replaces energy for each ingredient and runs equipment combination rules', () => {
   const fixture = fixtures()
   fixture.catalogMaps.ingredients.get('minecraft:coal').rules = [{ type: 'setPendingCard', cardId: 'coppertemper:test_card' }]
@@ -94,6 +108,55 @@ it('records energy expiry during finalization', () => {
   const result = simulateRecipe({ ...fixture, recipe: { ...fixture.recipe, ingredientIds: ['minecraft:coal'] } })
 
   expect(result.steps[0].phases.find(({ id }) => id === 'finalize').events).toContainEqual(expect.objectContaining({ operation: 'setEnergy', before: 24, after: 0, reason: 'energy_expired' }))
+})
+
+it('queues Birch until the resolve deities phase', () => {
+  const fixture = fixtures()
+  fixture.catalogMaps.ingredients.get('minecraft:coal').rules = [{ type: 'attemptDeity', role: 'birch' }]
+  fixture.recipe.ingredientIds = ['minecraft:coal']
+
+  const phases = simulateRecipe(fixture).steps[0].phases
+
+  expect(phases.find(({ id }) => id === 'ingredientRules').state.deityLevels.birch).toBe(0)
+  expect(phases.find(({ id }) => id === 'ingredientRules').state.deityQueue).toEqual(['birch'])
+  expect(phases.find(({ id }) => id === 'resolveDeities').state.deityLevels.birch).toBe(1)
+})
+
+it('uses explicit resistance for a queued deity attempt', () => {
+  const fixture = fixtures()
+  fixture.catalogMaps.ingredients.get('minecraft:coal').rules = [{ type: 'attemptDeity', role: 'birch', resistance: 3 }]
+  fixture.recipe.ingredientIds = ['minecraft:coal']
+
+  const phases = simulateRecipe(fixture).steps[0].phases
+
+  expect(phases.find(({ id }) => id === 'resolveDeities').state.energy).toBe(21)
+})
+
+it('records the source and phase for a resolved queued deity attempt', () => {
+  const fixture = fixtures()
+  fixture.catalogMaps.ingredients.get('minecraft:coal').rules = [{ type: 'attemptDeity', role: 'birch' }]
+  fixture.recipe.ingredientIds = ['minecraft:coal']
+
+  const phases = simulateRecipe(fixture).steps[0].phases
+  const resolution = phases.find(({ id }) => id === 'resolveDeities')
+
+  expect(resolution.events).toContainEqual(expect.objectContaining({
+    phase: 'resolveDeities',
+    sourceId: 'minecraft:coal',
+    operation: 'attemptDeity',
+    target: 'birch',
+  }))
+})
+
+it('deep-freezes queued deity attempt metadata in phase snapshots', () => {
+  const fixture = fixtures()
+  fixture.catalogMaps.ingredients.get('minecraft:coal').rules = [{ type: 'attemptDeity', role: 'birch' }]
+  fixture.recipe.ingredientIds = ['minecraft:coal']
+
+  const phases = simulateRecipe(fixture).steps[0].phases
+  const queuedAttempt = phases.find(({ id }) => id === 'ingredientRules').state.deityQueueAttempts[0]
+
+  expect(Object.isFrozen(queuedAttempt)).toBe(true)
 })
 
 it('preserves long-lived state while restoring base attributes for each ingredient', () => {

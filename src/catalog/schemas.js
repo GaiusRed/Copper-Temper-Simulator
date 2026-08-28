@@ -3,38 +3,39 @@ const namespacedId = '^[a-z0-9_.-]+:[a-z0-9_./-]+$'
 const id = { type: 'string', pattern: namespacedId }
 const positions = ['hidden', 'first', 'second', 'third', 'leaving']
 const roles = ['oak', 'dark_oak', 'birch', 'spruce', 'acacia', 'jungle', 'cherry', 'mangrove']
-const effectTypes = ['addAttribute', 'subtractAttribute', 'setAttribute', 'multiplyAttribute', 'grantTrait', 'removeTrait', 'addEnergy', 'spendEnergy', 'setEnergy', 'attemptDeity', 'queueDeity', 'increaseDeity', 'decreaseDeity', 'setPendingCard', 'moveCard', 'removeCard', 'retainCard', 'transformCard', 'setSticky', 'clearSticky', 'setWorldMode']
+const armorFields = ['armorPoints', 'armorToughness', 'maxDurability', 'knockbackResistance', 'enchantability']
+const toolFields = ['attackDamage', 'attackSpeed', 'miningSpeed', 'harvestLevel', 'maxDurability', 'enchantability']
 
 const condition = {
-  type: 'object',
-  additionalProperties: false,
-  properties: {
-    all: { type: 'array', minItems: 1, items: { $ref: '#/$defs/condition' } },
-    any: { type: 'array', minItems: 1, items: { $ref: '#/$defs/condition' } },
-    not: { $ref: '#/$defs/condition' },
-    type: { enum: ['compare', 'equipmentFamily', 'equipmentId', 'materialId', 'cardAtPosition', 'worldMode', 'hasTrait', 'hasCard'] },
-    target: { type: 'string' }, operator: { enum: ['gte', 'gt', 'lte', 'lt', 'eq'] }, value: {},
-    cardId: id, traitId: id, position: { enum: positions },
-  },
-  anyOf: [
-    { required: ['all'] }, { required: ['any'] }, { required: ['not'] },
-    { required: ['type', 'target', 'operator', 'value'], properties: { type: { const: 'compare' } } },
-    { required: ['type', 'value'], properties: { type: { enum: ['equipmentFamily', 'equipmentId', 'materialId', 'worldMode'] } } },
-    { required: ['type', 'traitId'], properties: { type: { const: 'hasTrait' } } },
-    { required: ['type', 'cardId'], properties: { type: { const: 'hasCard' } } },
-    { required: ['type', 'position', 'cardId'], properties: { type: { const: 'cardAtPosition' } } },
+  oneOf: [
+    { type: 'object', additionalProperties: false, required: ['all'], properties: { all: { type: 'array', minItems: 1, items: { $ref: '#/$defs/condition' } } } },
+    { type: 'object', additionalProperties: false, required: ['any'], properties: { any: { type: 'array', minItems: 1, items: { $ref: '#/$defs/condition' } } } },
+    { type: 'object', additionalProperties: false, required: ['not'], properties: { not: { $ref: '#/$defs/condition' } } },
+    { type: 'object', additionalProperties: false, required: ['type', 'target', 'operator', 'value'], properties: { type: { const: 'compare' }, target: { type: 'string' }, operator: { enum: ['gte', 'gt', 'lte', 'lt', 'eq'] }, value: { type: 'number' } } },
+    { type: 'object', additionalProperties: false, required: ['type', 'value'], properties: { type: { const: 'equipmentFamily' }, value: { enum: ['armor', 'tool'] } } },
+    { type: 'object', additionalProperties: false, required: ['type', 'value'], properties: { type: { const: 'equipmentId' }, value: id } },
+    { type: 'object', additionalProperties: false, required: ['type', 'value'], properties: { type: { const: 'materialId' }, value: id } },
+    { type: 'object', additionalProperties: false, required: ['type', 'value'], properties: { type: { const: 'worldMode' }, value: { enum: ['normal', 'independent', 'mirrored'] } } },
+    { type: 'object', additionalProperties: false, required: ['type', 'traitId'], properties: { type: { const: 'hasTrait' }, traitId: id } },
+    { type: 'object', additionalProperties: false, required: ['type', 'cardId'], properties: { type: { const: 'hasCard' }, cardId: id } },
+    { type: 'object', additionalProperties: false, required: ['type', 'position', 'cardId'], properties: { type: { const: 'cardAtPosition' }, position: { enum: positions }, cardId: id } },
   ],
 }
 
 const effect = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['type'],
-  properties: {
-    type: { enum: effectTypes }, attribute: { type: 'string' }, value: { type: ['number', 'string'] }, truncate: { type: 'boolean' },
-    traitId: id, role: { enum: roles }, resistance: { type: 'integer', minimum: 1 }, cardId: id, from: { enum: [...positions, 'pending'] }, to: { enum: positions }, position: { enum: positions }, transformTo: id,
-  },
-  allOf: [{ if: { properties: { type: { enum: ['addAttribute', 'subtractAttribute', 'setAttribute', 'multiplyAttribute'] } } }, then: { required: ['attribute', 'value'], properties: { value: { type: 'number' } } } }, { if: { properties: { type: { enum: ['grantTrait', 'removeTrait'] } } }, then: { required: ['traitId'] } }, { if: { properties: { type: { enum: ['addEnergy', 'spendEnergy', 'setEnergy'] } } }, then: { required: ['value'], properties: { value: { type: 'number' } } } }, { if: { properties: { type: { enum: ['attemptDeity', 'queueDeity', 'increaseDeity', 'decreaseDeity'] } } }, then: { required: ['role'] } }, { if: { properties: { type: { enum: ['increaseDeity', 'decreaseDeity'] } } }, then: { properties: { value: { type: 'number' } } } }, { if: { properties: { type: { const: 'setPendingCard' } } }, then: { required: ['cardId'] } }, { if: { properties: { type: { const: 'moveCard' } } }, then: { required: ['from', 'to'] } }, { if: { properties: { type: { enum: ['removeCard', 'retainCard', 'setSticky', 'clearSticky'] } } }, then: { anyOf: [{ required: ['cardId'] }, { required: ['position'] }] } }, { if: { properties: { type: { const: 'transformCard' } } }, then: { required: ['cardId', 'transformTo'] } }, { if: { properties: { type: { const: 'setWorldMode' } } }, then: { required: ['value'], properties: { value: { enum: ['normal', 'independent', 'mirrored'] } } } }],
+  oneOf: [
+    { type: 'object', additionalProperties: false, required: ['type', 'attribute', 'value'], properties: { type: { enum: ['addAttribute', 'subtractAttribute', 'setAttribute', 'multiplyAttribute'] }, attribute: { type: 'string' }, value: { type: 'number' }, truncate: { type: 'boolean' } } },
+    { type: 'object', additionalProperties: false, required: ['type', 'traitId'], properties: { type: { enum: ['grantTrait', 'removeTrait'] }, traitId: id } },
+    { type: 'object', additionalProperties: false, required: ['type', 'value'], properties: { type: { enum: ['addEnergy', 'spendEnergy', 'setEnergy'] }, value: { type: 'number' } } },
+    { type: 'object', additionalProperties: false, required: ['type', 'role'], properties: { type: { const: 'attemptDeity' }, role: { enum: roles }, resistance: { type: 'integer', minimum: 1 } } },
+    { type: 'object', additionalProperties: false, required: ['type', 'role'], properties: { type: { const: 'queueDeity' }, role: { enum: ['birch', 'spruce', 'acacia', 'jungle', 'cherry', 'mangrove'] }, resistance: { type: 'integer', minimum: 1 } } },
+    { type: 'object', additionalProperties: false, required: ['type', 'role'], properties: { type: { enum: ['increaseDeity', 'decreaseDeity'] }, role: { enum: roles }, value: { type: 'integer', minimum: 1 } } },
+    { type: 'object', additionalProperties: false, required: ['type', 'cardId'], properties: { type: { const: 'setPendingCard' }, cardId: id } },
+    { type: 'object', additionalProperties: false, required: ['type', 'from', 'to'], properties: { type: { const: 'moveCard' }, from: { enum: [...positions, 'pending'] }, to: { enum: positions } } },
+    { type: 'object', additionalProperties: false, required: ['type'], anyOf: [{ required: ['cardId'] }, { required: ['position'] }], properties: { type: { enum: ['removeCard', 'retainCard', 'setSticky', 'clearSticky'] }, cardId: id, position: { enum: positions } } },
+    { type: 'object', additionalProperties: false, required: ['type', 'cardId', 'transformTo'], properties: { type: { const: 'transformCard' }, cardId: id, transformTo: id } },
+    { type: 'object', additionalProperties: false, required: ['type', 'value'], properties: { type: { const: 'setWorldMode' }, value: { enum: ['normal', 'independent', 'mirrored'] } } },
+  ],
 }
 
 const rule = {
@@ -101,7 +102,11 @@ export const catalogSchemas = {
     ...namedEntry,
     required: ['id', 'name', 'family', 'fields', 'base'],
     additionalProperties: false,
-    properties: { ...namedEntry.properties, family: { enum: ['armor', 'tool'] }, fields: { type: 'array', items: { type: 'string' } }, base: { type: 'object', additionalProperties: { type: ['number', 'string'] } }, combinationRules: { type: 'array', items: rule } },
+    properties: { ...namedEntry.properties, family: { enum: ['armor', 'tool'] }, fields: { type: 'array', minItems: 1, uniqueItems: true, items: { type: 'string' } }, base: { type: 'object', additionalProperties: { type: ['number', 'string'] } }, combinationRules: { type: 'array', items: rule } },
+    allOf: [
+      { if: { properties: { family: { const: 'armor' } } }, then: { properties: { fields: { items: { enum: armorFields } } } } },
+      { if: { properties: { family: { const: 'tool' } } }, then: { properties: { fields: { items: { enum: toolFields } } } } },
+    ],
   }),
   ingredients: catalogSchema({
     ...namedEntry,
@@ -116,7 +121,7 @@ export const catalogSchemas = {
     properties: {
       ...namedEntry.properties,
       rulesByPosition: { type: 'object', required: positions, additionalProperties: false, properties: Object.fromEntries(positions.map((position) => [position, { type: 'array', items: rule }])) },
-      capabilities: { type: 'object', additionalProperties: false, properties: { sticky: { type: 'boolean' }, isWorldCard: { type: 'boolean' }, worldMode: { enum: ['normal', 'independent', 'mirrored'] }, removeAfterActivation: { type: 'boolean' }, retainLeavingCardId: id, transformTo: id } },
+      capabilities: { type: 'object', additionalProperties: false, properties: { sticky: { type: 'boolean' }, isWorldCard: { type: 'boolean' }, worldMode: { enum: ['normal', 'independent', 'mirrored'] }, removeAfterActivation: { type: 'boolean' }, retainLeavingCardId: id, transformTo: id }, allOf: [{ if: { required: ['isWorldCard'], properties: { isWorldCard: { const: true } } }, then: { required: ['worldMode'] } }] },
     },
   }),
   traits: catalogSchema({

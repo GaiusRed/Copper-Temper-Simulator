@@ -22,6 +22,7 @@ export function createInitialState({ catalogMaps, recipe }) {
     energy: 0,
     deityLevels: Object.freeze(Object.fromEntries(deityRoles.map((role) => [role, 0]))),
     deityQueue: Object.freeze([]),
+    deityQueueAttempts: Object.freeze([]),
     cards: Object.freeze({ hidden: null, first: null, second: null, third: null, leaving: null }),
     traits: Object.freeze([]),
     worldMode: 'normal',
@@ -39,6 +40,7 @@ function freezeState(state) {
     attributes: Object.freeze({ ...state.attributes }),
     deityLevels: Object.freeze({ ...state.deityLevels }),
     deityQueue: Object.freeze([...state.deityQueue]),
+    deityQueueAttempts: Object.freeze((state.deityQueueAttempts ?? []).map((attempt) => Object.freeze({ ...attempt }))),
     cards: Object.freeze({ ...state.cards }),
     traits: Object.freeze([...state.traits]),
     stickyCardIds: Object.freeze([...state.stickyCardIds]),
@@ -66,7 +68,7 @@ export function simulateIngredient({ catalogMaps, state, ingredientId }) {
   let nextState = freezeState(state)
   let pendingCardId = null
 
-  nextState = freezeState({ ...nextState, cards: { ...nextState.cards, leaving: null }, deityQueue: [] })
+  nextState = freezeState({ ...nextState, cards: { ...nextState.cards, leaving: null }, deityQueue: [], deityQueueAttempts: [] })
   phase(phases, 'reset', nextState)
   nextState = freezeState({ ...nextState, stickyCardIds: [] })
   phase(phases, 'prepareCards', nextState)
@@ -74,8 +76,9 @@ export function simulateIngredient({ catalogMaps, state, ingredientId }) {
   phase(phases, 'restoreBase', nextState)
   ;({ state: nextState } = selectWorldMode({ state: nextState, catalogMaps }))
   phase(phases, 'selectWorld', nextState)
+  const priorEnergy = nextState.energy
   nextState = freezeState({ ...nextState, energy: ingredient.energy })
-  phase(phases, 'ingredientEnergy', nextState, [createEvent({ phase: 'ingredientEnergy', sourceId: ingredientId, operation: 'setEnergy', after: ingredient.energy })])
+  phase(phases, 'ingredientEnergy', nextState, [createEvent({ phase: 'ingredientEnergy', sourceId: ingredientId, operation: 'setEnergy', target: 'energy', before: priorEnergy, after: ingredient.energy })])
 
   let context = runRules(material.hooks?.beforeIngredient ?? [], { state: nextState, catalogMaps, sourceId: material.id, phase: 'materialBefore', pendingCardId })
   nextState = context.state
@@ -94,9 +97,9 @@ export function simulateIngredient({ catalogMaps, state, ingredientId }) {
   context = applyCardLifecycle({ state: context.state, catalogMaps, phaseContext: { phase: 'cardCombinations', events: context.events } })
   nextState = context.state
   phase(phases, 'cardCombinations', nextState, context.events)
-  const deityResult = resolveDeityQueue({ state: nextState, queue: nextState.deityQueue, mode: nextState.worldMode, resistances: material.deityResistances })
-  nextState = freezeState({ ...deityResult.state, deityQueue: [] })
-  phase(phases, 'resolveDeities', nextState, deityResult.events)
+  const deityResult = resolveDeityQueue({ state: nextState, queue: nextState.deityQueueAttempts, mode: nextState.worldMode, resistances: material.deityResistances })
+  nextState = freezeState({ ...deityResult.state, deityQueue: [], deityQueueAttempts: [] })
+  phase(phases, 'resolveDeities', nextState, deityResult.events.map((event) => createEvent({ ...event, phase: 'resolveDeities' })))
   context = runRules(material.hooks?.afterIngredient ?? [], { state: nextState, catalogMaps, sourceId: material.id, phase: 'materialAfter', pendingCardId: null })
   nextState = context.state
   phase(phases, 'materialAfter', nextState, context.events)

@@ -3,6 +3,7 @@ import { applyEffects, evaluateCondition } from './rules'
 
 const context = {
   state: { energy: 8, family: 'tool', attributes: { attackDamage: 5 }, traits: [] },
+  catalogMaps: { traits: new Map([['coppertemper:test_trait', { validFamilies: ['tool'], validEquipmentIds: [] }]]) },
 }
 
 it('evaluates nested conditions', () => {
@@ -106,6 +107,45 @@ it('records actual values for applied attribute effects', () => {
   expect(result.events).toContainEqual(expect.objectContaining({ phase: 'ingredientRules', sourceId: 'minecraft:coal', operation: 'addAttribute', target: 'attackDamage', before: 5, after: 7 }))
 })
 
+it.each([
+  [{ type: 'addEnergy', value: 2 }, 10],
+  [{ type: 'spendEnergy', value: 2 }, 6],
+  [{ type: 'setEnergy', value: 2 }, 2],
+])('records energy as the target for %s', (effect, after) => {
+  const result = applyEffects([effect], context)
+
+  expect(result.events).toContainEqual(expect.objectContaining({
+    operation: effect.type,
+    target: 'energy',
+    before: 8,
+    after,
+  }))
+})
+
+it.each([
+  ['setPendingCard', { type: 'setPendingCard', cardId: 'card:new' }, { pendingCardId: 'card:old' }, {}, { target: 'pendingCard', before: 'card:old', after: 'card:new' }],
+  ['moveCard', { type: 'moveCard', from: 'first', to: 'second' }, {}, {}, { target: 'card:old', before: 'first', after: 'second' }],
+  ['removeCard', { type: 'removeCard', position: 'first' }, {}, {}, { target: 'card:old', before: 'first', after: null }],
+  ['retainCard', { type: 'retainCard', position: 'first' }, {}, {}, { target: 'card:old', before: false, after: true }],
+  ['clearSticky', { type: 'clearSticky', position: 'first' }, {}, { stickyCardIds: ['card:old'] }, { target: 'card:old', before: true, after: false }],
+  ['transformCard', { type: 'transformCard', cardId: 'card:old', transformTo: 'card:new' }, {}, {}, { target: 'card:old', before: 'card:old', after: 'card:new' }],
+  ['setWorldMode', { type: 'setWorldMode', value: 'mirrored' }, {}, {}, { target: 'worldMode', before: 'normal', after: 'mirrored' }],
+])('records structured values for %s', (_name, effect, contextOverrides, stateOverrides, expected) => {
+  const result = applyEffects([effect], {
+    ...context,
+    ...contextOverrides,
+    state: {
+      ...context.state,
+      worldMode: 'normal',
+      cards: { hidden: null, first: 'card:old', second: null, third: null, leaving: null },
+      stickyCardIds: [],
+      ...stateOverrides,
+    },
+  })
+
+  expect(result.events).toContainEqual(expect.objectContaining(expected))
+})
+
 it('records one complete event for a deity attempt', () => {
   const result = applyEffects([{ type: 'attemptDeity', role: 'oak' }], {
     ...context,
@@ -118,4 +158,57 @@ it('records one complete event for a deity attempt', () => {
   expect(result.events).toEqual([expect.objectContaining({
     phase: 'ingredientRules', sourceId: 'minecraft:coal', operation: 'attemptDeity', target: 'oak', before: 0, after: 1, energyCost: 3,
   })])
+})
+
+it.each([
+  ['bright', { oak: 1, dark_oak: 0, birch: 0, spruce: 1 }, false],
+  ['balanced', { oak: 1, dark_oak: 1, birch: 0, spruce: 1 }, true],
+  ['shaded', { oak: 0, dark_oak: 1, birch: 0, spruce: 1 }, false],
+  ['opposition-free', { oak: 0, dark_oak: 1, birch: 0, spruce: 0 }, true],
+])('queues Birch only for a %s normal-world state', (_name, deityLevels, queued) => {
+  const result = applyEffects([{ type: 'attemptDeity', role: 'birch' }], {
+    ...context,
+    state: { ...context.state, deityLevels },
+  })
+
+  expect(result.state.deityQueue).toEqual(queued ? ['birch'] : [])
+  expect(result.events).toEqual(queued
+    ? [expect.objectContaining({ operation: 'queueDeity', target: 'birch' })]
+    : [expect.objectContaining({ operation: 'attemptDeity', target: 'birch', reason: 'blocked' })])
+})
+
+it('queues Spruce in independent mode when Birch is present', () => {
+  const result = applyEffects([{ type: 'attemptDeity', role: 'spruce' }], {
+    ...context,
+    state: {
+      ...context.state,
+      worldMode: 'independent',
+      deityLevels: { oak: 1, dark_oak: 0, birch: 1, spruce: 0 },
+    },
+  })
+
+  expect(result.state.deityQueue).toEqual(['spruce'])
+})
+
+it.each([-1, 0, 0.5])('rejects an invalid deity adjustment value of %s', (value) => {
+  expect(() => applyEffects([{ type: 'increaseDeity', role: 'oak', value }], {
+    ...context,
+    state: { ...context.state, deityLevels: { oak: 1 } },
+  })).toThrow('Deity adjustment value must be a positive integer')
+})
+
+it('rejects a trait that does not apply to the selected equipment', () => {
+  expect(() => applyEffects([{ type: 'grantTrait', traitId: 'coppertemper:armor_trait' }], {
+    ...context,
+    state: { ...context.state, equipmentId: 'coppertemper:sword' },
+    catalogMaps: { traits: new Map([['coppertemper:armor_trait', { validFamilies: ['armor'], validEquipmentIds: [] }]]) },
+  })).toThrow('does not apply to coppertemper:sword')
+})
+
+it('rejects an unknown trait without changing state', () => {
+  expect(() => applyEffects([{ type: 'grantTrait', traitId: 'coppertemper:missing_trait' }], {
+    ...context,
+    state: { ...context.state, equipmentId: 'coppertemper:sword' },
+    catalogMaps: { traits: new Map() },
+  })).toThrow('Unknown trait ID: coppertemper:missing_trait')
 })

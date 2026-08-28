@@ -18,13 +18,13 @@ function formatEvent(event) {
   if (event.operation === 'queueDeity') return `${target} was queued.`
   if (event.operation === 'grantTrait') return `${target} was granted.`
   if (event.operation === 'removeTrait') return `${target} was removed.`
-  if (event.operation === 'setPendingCard') return `The pending card was set to ${target}.`
-  if (event.operation === 'moveCard') return `A card moved to ${target}.`
+  if (event.operation === 'setPendingCard') return `The pending card changed from ${event.before ?? 'none'} to ${event.after}.`
+  if (event.operation === 'moveCard') return `${event.target} moved from ${event.before} to ${event.after}.`
   if (event.operation === 'removeCard') return `${target} was removed.`
   if (event.operation === 'retainCard' || event.operation === 'setSticky') return `${target} was retained.`
   if (event.operation === 'clearSticky') return `${target} was no longer retained.`
-  if (event.operation === 'transformCard') return `${target} was transformed.`
-  if (event.operation === 'setWorldMode') return 'The world rule mode changed.'
+  if (event.operation === 'transformCard') return `${event.before} transformed into ${event.after}.`
+  if (event.operation === 'setWorldMode') return `The world rule mode changed from ${event.before} to ${event.after}.`
   return `${event.operation}${event.target ? `: ${event.target}` : ''}.`
 }
 
