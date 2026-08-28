@@ -83,7 +83,25 @@ it('adds the derived deity bonus to armor points', () => {
   fixture.catalogMaps.ingredients.get('minecraft:coal').rules = [{ type: 'increaseDeity', role: 'oak', value: 2 }]
   fixture.recipe = { ...fixture.recipe, materialId: 'minecraft:iron_armor', equipmentId: 'coppertemper:helmet', ingredientIds: ['minecraft:coal'] }
 
-  expect(simulateRecipe(fixture).steps[0].final.attributes.armorPoints).toBe(3)
+  const step = simulateRecipe(fixture).steps[0]
+
+  expect(step.final.attributes.armorPoints).toBe(3)
+  expect(step.phases.find(({ id }) => id === 'finalize').events).toContainEqual(expect.objectContaining({
+    operation: 'addAttribute', target: 'armorPoints', before: 2, after: 3,
+  }))
+})
+
+it('records the derived deity bonus to tool attack damage', () => {
+  const fixture = fixtures()
+  fixture.catalogMaps.ingredients.get('minecraft:coal').rules = [{ type: 'attemptDeity', role: 'oak' }]
+  fixture.recipe.ingredientIds = ['minecraft:coal', 'minecraft:coal']
+
+  const second = simulateRecipe(fixture).steps[1]
+
+  expect(second.final.attributes.attackDamage).toBe(7)
+  expect(second.phases.find(({ id }) => id === 'finalize').events).toContainEqual(expect.objectContaining({
+    operation: 'addAttribute', target: 'attackDamage', before: 6, after: 7,
+  }))
 })
 
 it('resets dynamic sticky state before each ingredient', () => {
@@ -117,6 +135,23 @@ it('runs card transformation in the card combinations phase', () => {
 
   expect(phases.find(({ id }) => id === 'activateCards').state.cards.hidden).toBe('coppertemper:test_card')
   expect(phases.find(({ id }) => id === 'cardCombinations').state.cards.hidden).toBe('coppertemper:after_card')
+})
+
+it('records cards moving into queue slots', () => {
+  const fixture = fixtures()
+  fixture.catalogMaps.ingredients.get('minecraft:coal').rules = [{ type: 'setPendingCard', cardId: 'coppertemper:test_card' }]
+  fixture.recipe.ingredientIds = ['minecraft:coal']
+
+  const push = simulateRecipe(fixture).steps[0].phases.find(({ id }) => id === 'pushCard')
+
+  expect(push.events).toContainEqual({
+    phase: 'pushCard',
+    sourceId: 'minecraft:coal',
+    operation: 'moveCard',
+    target: 'coppertemper:test_card',
+    before: 'pending',
+    after: 'hidden',
+  })
 })
 
 it('records energy expiry during finalization', () => {

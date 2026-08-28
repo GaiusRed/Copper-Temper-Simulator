@@ -10,6 +10,13 @@ it('pushes hidden cards through visible slots and into leaving', () => {
   expect(result.state.cards).toEqual({
     hidden: 'card:newest', first: 'card:newer', second: 'card:one', third: 'card:two', leaving: 'card:three',
   })
+  expect(result.events).toEqual([
+    { operation: 'moveCard', target: 'card:newest', before: 'pending', after: 'hidden' },
+    { operation: 'moveCard', target: 'card:newer', before: 'hidden', after: 'first' },
+    { operation: 'moveCard', target: 'card:one', before: 'first', after: 'second' },
+    { operation: 'moveCard', target: 'card:two', before: 'second', after: 'third' },
+    { operation: 'moveCard', target: 'card:three', before: 'third', after: 'leaving' },
+  ])
 })
 
 it('does not move cards without a pending card', () => {

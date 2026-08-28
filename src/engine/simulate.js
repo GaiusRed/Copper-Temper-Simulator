@@ -95,8 +95,9 @@ export function simulateIngredient({ catalogMaps, state, ingredientId }) {
   nextState = context.state
   pendingCardId = context.pendingCardId
   phase(phases, 'ingredientRules', nextState, context.events)
-  ;({ state: nextState } = pushPendingCard({ state: nextState, pendingCardId, catalogMaps }))
-  phase(phases, 'pushCard', nextState)
+  let pushResult = pushPendingCard({ state: nextState, pendingCardId, catalogMaps })
+  nextState = pushResult.state
+  phase(phases, 'pushCard', nextState, pushResult.events.map((event) => createEvent({ ...event, phase: 'pushCard', sourceId: ingredientId })))
   const activation = activateCards({ state: nextState, catalogMaps, phaseContext: { phase: 'activateCards', pendingCardId } })
   nextState = activation.state
   phase(phases, 'activateCards', nextState, activation.events)
@@ -111,15 +112,22 @@ export function simulateIngredient({ catalogMaps, state, ingredientId }) {
   nextState = context.state
   pendingCardId = context.pendingCardId
   phase(phases, 'afterDeityRules', nextState, context.events)
-  ;({ state: nextState } = pushPendingCard({ state: nextState, pendingCardId, catalogMaps }))
-  phase(phases, 'pushAfterDeityCard', nextState)
+  pushResult = pushPendingCard({ state: nextState, pendingCardId, catalogMaps })
+  nextState = pushResult.state
+  phase(phases, 'pushAfterDeityCard', nextState, pushResult.events.map((event) => createEvent({ ...event, phase: 'pushAfterDeityCard', sourceId: ingredientId })))
   context = runRules(material.hooks?.afterIngredient ?? [], { state: nextState, catalogMaps, sourceId: material.id, phase: 'materialAfter', pendingCardId: null })
   nextState = context.state
   phase(phases, 'materialAfter', nextState, context.events)
   const deityBonus = getDeityBonus(nextState.deityLevels)
   const bonusAttribute = nextState.family === 'tool' ? 'attackDamage' : 'armorPoints'
-  if (bonusAttribute in nextState.attributes) nextState = freezeState({ ...nextState, attributes: { ...nextState.attributes, [bonusAttribute]: nextState.attributes[bonusAttribute] + deityBonus } })
-  const finalEvents = nextState.energy === 0 ? [] : [createEvent({ phase: 'finalize', sourceId: ingredientId, operation: 'setEnergy', target: 'energy', before: nextState.energy, after: 0, reason: 'energy_expired' })]
+  const finalEvents = []
+  if (deityBonus > 0 && bonusAttribute in nextState.attributes) {
+    const before = nextState.attributes[bonusAttribute]
+    const after = before + deityBonus
+    nextState = freezeState({ ...nextState, attributes: { ...nextState.attributes, [bonusAttribute]: after } })
+    finalEvents.push(createEvent({ phase: 'finalize', sourceId: ingredientId, operation: 'addAttribute', target: bonusAttribute, before, after }))
+  }
+  if (nextState.energy !== 0) finalEvents.push(createEvent({ phase: 'finalize', sourceId: ingredientId, operation: 'setEnergy', target: 'energy', before: nextState.energy, after: 0, reason: 'energy_expired' }))
   nextState = freezeState({ ...nextState, energy: 0 })
   phase(phases, 'finalize', nextState, finalEvents)
 

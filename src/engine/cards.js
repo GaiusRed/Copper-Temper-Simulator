@@ -9,25 +9,33 @@ export function pushPendingCard({ state, pendingCardId, catalogMaps }) {
   if (!pendingCardId) return { state, events: [] }
   const cards = state.cards
   const nextCards = { ...cards, hidden: pendingCardId }
+  const events = [{ operation: 'moveCard', target: pendingCardId, before: 'pending', after: 'hidden' }]
   let incomingCardId = cards.hidden
+  let incomingPosition = 'hidden'
+  let stoppedAtStickyCard = false
 
   for (const position of ['first', 'second', 'third']) {
     if (isSticky(cards[position], state, catalogMaps)) {
       nextCards.leaving = incomingCardId
+      if (incomingCardId) events.push({ operation: 'moveCard', target: incomingCardId, before: incomingPosition, after: 'leaving' })
+      stoppedAtStickyCard = true
       break
     }
 
     nextCards[position] = incomingCardId
+    if (incomingCardId) events.push({ operation: 'moveCard', target: incomingCardId, before: incomingPosition, after: position })
     incomingCardId = cards[position]
+    incomingPosition = position
     nextCards.leaving = incomingCardId
   }
+  if (!stoppedAtStickyCard && incomingCardId) events.push({ operation: 'moveCard', target: incomingCardId, before: incomingPosition, after: 'leaving' })
 
   return {
     state: Object.freeze({
       ...state,
       cards: Object.freeze(nextCards),
     }),
-    events: [],
+    events: Object.freeze(events.map((event) => Object.freeze(event))),
   }
 }
 
