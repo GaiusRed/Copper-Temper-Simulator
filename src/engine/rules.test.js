@@ -94,6 +94,15 @@ it('reduces a deity resistance by the legacy quarter-step formula', () => {
   expect(result.state.deityResistances.oak).toBe(6)
 })
 
+it('reduces a deity resistance by the legacy half-step formula', () => {
+  const result = applyEffects([{ type: 'reduceDeityResistance', role: 'oak', factor: 0.5 }], {
+    ...context,
+    state: { ...context.state, deityResistances: { oak: 11 } },
+  })
+
+  expect(result.state.deityResistances.oak).toBe(5)
+})
+
 it('compares the sum of all deity levels', () => {
   expect(evaluateCondition({ type: 'compare', target: 'totalDeityLevels', operator: 'gte', value: 3 }, {
     ...context,

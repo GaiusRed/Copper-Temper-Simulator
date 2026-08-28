@@ -93,6 +93,20 @@ it('resets dynamic sticky state before each ingredient', () => {
   expect(simulateIngredient({ catalogMaps: fixture.catalogMaps, state: initial, ingredientId: 'minecraft:coal' }).phases.find(({ id }) => id === 'prepareCards').state.stickyCardIds).toEqual([])
 })
 
+it('resets deity resistances from the material before each ingredient', () => {
+  const fixture = fixtures()
+  const initial = {
+    ...createInitialState(fixture),
+    deityResistances: { oak: 6, dark_oak: 6, birch: 6, spruce: 6, acacia: 6, jungle: 6, cherry: 6, mangrove: 6 },
+  }
+
+  const phases = simulateIngredient({ catalogMaps: fixture.catalogMaps, state: initial, ingredientId: 'minecraft:coal' }).phases
+
+  expect(phases.find(({ id }) => id === 'restoreBase').state.deityResistances).toEqual({
+    oak: 8, dark_oak: 8, birch: 8, spruce: 8, acacia: 8, jungle: 8, cherry: 8, mangrove: 8,
+  })
+})
+
 it('runs card transformation in the card combinations phase', () => {
   const fixture = fixtures()
   fixture.catalogMaps.ingredients.get('minecraft:coal').rules = [{ type: 'setPendingCard', cardId: 'coppertemper:test_card' }]

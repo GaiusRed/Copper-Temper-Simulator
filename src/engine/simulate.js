@@ -75,7 +75,11 @@ export function simulateIngredient({ catalogMaps, state, ingredientId }) {
   phase(phases, 'reset', nextState)
   nextState = freezeState({ ...nextState, stickyCardIds: [] })
   phase(phases, 'prepareCards', nextState)
-  nextState = freezeState({ ...nextState, attributes: { ...nextState.baseItem.attributes } })
+  nextState = freezeState({
+    ...nextState,
+    attributes: { ...nextState.baseItem.attributes },
+    deityResistances: { ...material.deityResistances },
+  })
   phase(phases, 'restoreBase', nextState)
   ;({ state: nextState } = selectWorldMode({ state: nextState, catalogMaps }))
   phase(phases, 'selectWorld', nextState)

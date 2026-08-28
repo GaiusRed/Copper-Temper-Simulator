@@ -30,7 +30,7 @@ const effect = {
     { type: 'object', additionalProperties: false, required: ['type', 'role'], properties: { type: { const: 'attemptDeity' }, role: { enum: roles }, resistance: { type: 'integer', minimum: 1 } } },
     { type: 'object', additionalProperties: false, required: ['type', 'role'], properties: { type: { const: 'queueDeity' }, role: { enum: ['birch', 'spruce', 'acacia', 'jungle', 'cherry', 'mangrove'] }, resistance: { type: 'integer', minimum: 1 } } },
     { type: 'object', additionalProperties: false, required: ['type', 'role'], properties: { type: { enum: ['increaseDeity', 'decreaseDeity'] }, role: { enum: roles }, value: { type: 'integer', minimum: 1 } } },
-    { type: 'object', additionalProperties: false, required: ['type', 'role'], properties: { type: { const: 'reduceDeityResistance' }, role: { enum: roles } } },
+    { type: 'object', additionalProperties: false, required: ['type', 'role'], properties: { type: { const: 'reduceDeityResistance' }, role: { enum: roles }, factor: { enum: [0.5] } } },
     { type: 'object', additionalProperties: false, required: ['type', 'cardId'], properties: { type: { const: 'setPendingCard' }, cardId: id } },
     { type: 'object', additionalProperties: false, required: ['type', 'from', 'to'], properties: { type: { const: 'moveCard' }, from: { enum: [...positions, 'pending'] }, to: { enum: positions } } },
     { type: 'object', additionalProperties: false, required: ['type'], anyOf: [{ required: ['cardId'] }, { required: ['position'] }], properties: { type: { enum: ['removeCard', 'retainCard', 'setSticky', 'clearSticky'] }, cardId: id, position: { enum: positions } } },

@@ -1,4 +1,5 @@
 import { expect, it } from 'vitest'
+import { catalogMaps } from '../catalog'
 import { activateCards, applyCardLifecycle, pushPendingCard, selectWorldMode } from './cards'
 
 it('pushes hidden cards through visible slots and into leaving', () => {
@@ -91,6 +92,35 @@ it('uses the highest-priority visible world card', () => {
   })
 
   expect(result.state.worldMode).toBe('independent')
+})
+
+it('uses Tower to halve Witch resistances in a visible position', () => {
+  const result = activateCards({
+    state: {
+      attributes: {}, traits: [], deityLevels: {}, deityResistances: { oak: 11, dark_oak: 11, birch: 11, spruce: 11, acacia: 11, jungle: 11, cherry: 11, mangrove: 11 },
+      deityQueue: [], deityQueueAttempts: [], stickyCardIds: [],
+      cards: { hidden: null, first: 'coppertemper:witch', second: null, third: 'coppertemper:tower', leaving: null },
+    },
+    catalogMaps,
+    phaseContext: { phase: 'activateCards' },
+  })
+
+  expect(result.state.deityResistances).toMatchObject({ dark_oak: 5, spruce: 5, cherry: 5, mangrove: 5 })
+  expect(result.state.deityResistances).toMatchObject({ oak: 11, birch: 11, acacia: 11, jungle: 11 })
+})
+
+it('uses Tower to halve Sorcerer resistances unless Tower is hidden', () => {
+  const state = (hidden) => ({
+    attributes: {}, traits: [], deityLevels: {}, deityResistances: { oak: 11, dark_oak: 11, birch: 11, spruce: 11, acacia: 11, jungle: 11, cherry: 11, mangrove: 11 },
+    deityQueue: [], deityQueueAttempts: [], stickyCardIds: [],
+    cards: { hidden, first: 'coppertemper:sorcerer', second: null, third: 'coppertemper:tower', leaving: null },
+  })
+
+  const visibleTower = activateCards({ state: state(null), catalogMaps, phaseContext: { phase: 'activateCards' } })
+  const hiddenTower = activateCards({ state: state('coppertemper:tower'), catalogMaps, phaseContext: { phase: 'activateCards' } })
+
+  expect(visibleTower.state.deityResistances).toMatchObject({ oak: 5, birch: 5, acacia: 5, jungle: 5 })
+  expect(hiddenTower.state.deityResistances).toMatchObject({ oak: 6, birch: 6, acacia: 6, jungle: 6 })
 })
 
 it('applies card self-removal during activation and transformations during lifecycle', () => {

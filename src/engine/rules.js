@@ -46,8 +46,16 @@ export function applyEffects(effects, context) {
     stickyCardIds: [...(context.state.stickyCardIds ?? [])],
   }
   let pendingCardId = context.pendingCardId ?? null
-  const events = [...(context.events ?? [])]
+  let events = [...(context.events ?? [])]
   for (const effect of effects) {
+    if (effect.effects) {
+      if (effect.condition && !evaluateCondition(effect.condition, { ...context, state })) continue
+      const result = applyEffects(effect.effects, { ...context, state, pendingCardId, events })
+      state = result.state
+      pendingCardId = result.pendingCardId
+      events = [...result.events]
+      continue
+    }
     let target = effect.attribute ?? effect.role ?? effect.traitId ?? effect.cardId ?? effect.position
     let before = effect.attribute ? state.attributes[effect.attribute]
       : effect.role ? state.deityLevels[effect.role]
@@ -103,7 +111,10 @@ export function applyEffects(effects, context) {
         : Math.max(0, state.deityLevels[effect.role] - adjustment)
     }
     if (effect.type === 'reduceDeityResistance') {
-      state.deityResistances[effect.role] = Math.max(1, Math.trunc(state.deityResistances[effect.role] / 4) * 3)
+      const resistance = state.deityResistances[effect.role]
+      state.deityResistances[effect.role] = Math.max(1, effect.factor === 0.5
+        ? Math.trunc(resistance / 2)
+        : Math.trunc(resistance / 4) * 3)
     }
     if (effect.type === 'queueDeity') {
       if (!DEITY_QUEUE_ORDER.includes(effect.role)) throw new Error(`Cannot queue immediate deity role: ${effect.role}`)
